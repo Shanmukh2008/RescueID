@@ -10,7 +10,10 @@ require('./models/EmergencyContact');
 const app = express();
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: ['http://localhost:3000', 'http://10.1.11.43:3000'],
+  credentials: true
+}));
 app.use(express.json());
 
 // Routes
