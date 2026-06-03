@@ -60,7 +60,10 @@ router.get('/emergency/:emergencyAccessId', async (req, res) => {
     const user = await User.findOne({
       where: { emergencyAccessId: req.params.emergencyAccessId },
       attributes: ['fullName', 'dateOfBirth', 'gender', 'bloodGroup', 'allergies', 'medications', 'medicalConditions'],
-      include: [{ model: EmergencyContact }]
+      include: [{ 
+        model: EmergencyContact,
+        attributes: ['name', 'relationship', 'phone']
+      }]
     });
 
     if (!user) {
@@ -73,5 +76,4 @@ router.get('/emergency/:emergencyAccessId', async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 });
-
 module.exports = router;
