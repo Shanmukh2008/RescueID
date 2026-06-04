@@ -107,6 +107,19 @@ function Dashboard() {
       setPhotoUploading(false);
     }
   };
+  
+  const downloadQR = () => {
+  const { jsPDF } = require('jspdf');
+  const canvas = qrRef.current;
+  const imgData = canvas.toDataURL('image/png');
+  const pdf = new jsPDF({
+    orientation: 'portrait',
+    unit: 'mm',
+    format: [80, 80]
+  });
+  pdf.addImage(imgData, 'PNG', 5, 5, 70, 70);
+  pdf.save('RescueID-QRCode.pdf');
+};
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -168,7 +181,10 @@ function Dashboard() {
           <div style={styles.qrContainer}>
             <canvas ref={qrRef} />
             <p style={styles.qrText}>Paramedics can scan this to access your profile instantly</p>
-          </div>
+            <button style={styles.downloadBtn} onClick={downloadQR}>
+              Download QR Code
+            </button>
+</div>
         </div>
 
         <form onSubmit={handleSubmit} style={styles.form}>
@@ -414,7 +430,17 @@ const styles = {
     borderRadius: '8px',
     fontSize: '14px'
   },
-  loading: { display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', fontSize: '18px', color: '#666' }
+  loading: { display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', fontSize: '18px', color: '#666' },
+downloadBtn: {
+  padding: '8px 20px',
+  background: 'white',
+  color: '#e53e3e',
+  border: '1px solid #e53e3e',
+  borderRadius: '8px',
+  cursor: 'pointer',
+  fontSize: '14px',
+  fontWeight: '600'
+}
 };
 
 export default Dashboard;
