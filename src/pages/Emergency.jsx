@@ -56,6 +56,18 @@ function Emergency() {
     <div style={styles.container}>
       <div style={styles.header}>
         <span style={styles.badge}>🚨 EMERGENCY ACCESS</span>
+
+        {/* Profile Photo */}
+        {profile.photo ? (
+          <img
+            src={`http://10.1.11.43:8080${profile.photo}`}
+            alt="Patient"
+            style={styles.photo}
+          />
+        ) : (
+          <div style={styles.photoPlaceholder}>👤</div>
+        )}
+
         <h1 style={styles.name}>{profile.fullName}</h1>
         <div style={styles.basicInfo}>
           <span style={styles.tag}>{profile.bloodGroup}</span>
@@ -133,6 +145,26 @@ const styles = {
     fontSize: '12px',
     fontWeight: '600',
     letterSpacing: '1px'
+  },
+  photo: {
+    width: '100px',
+    height: '100px',
+    borderRadius: '50%',
+    objectFit: 'cover',
+    border: '3px solid white',
+    margin: '16px auto 0',
+    display: 'block'
+  },
+  photoPlaceholder: {
+    width: '100px',
+    height: '100px',
+    borderRadius: '50%',
+    background: 'rgba(255,255,255,0.2)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: '48px',
+    margin: '16px auto 0'
   },
   name: { fontSize: '28px', margin: '12px 0 16px', fontWeight: '700' },
   basicInfo: { display: 'flex', gap: '8px', justifyContent: 'center', flexWrap: 'wrap' },

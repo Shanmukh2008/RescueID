@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getProfile, updateProfile } from '../services/api';
+import axios from 'axios';
 
 function Dashboard() {
   const navigate = useNavigate();
@@ -8,6 +9,8 @@ function Dashboard() {
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
+  const [photo, setPhoto] = useState('');
+  const [photoUploading, setPhotoUploading] = useState(false);
   const [form, setForm] = useState({
     fullName: '',
     dateOfBirth: '',
@@ -42,6 +45,7 @@ function Dashboard() {
       const res = await getProfile();
       const data = res.data;
       setEmergencyAccessId(data.emergencyAccessId);
+      setPhoto(data.photo || '');
       setForm({
         fullName: data.fullName || '',
         dateOfBirth: data.dateOfBirth || '',
@@ -83,6 +87,27 @@ function Dashboard() {
     setForm({ ...form, emergencyContacts: updated });
   };
 
+  const handlePhotoUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setPhotoUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('photo', file);
+      const res = await axios.post('http://10.1.11.43:8080/api/upload/photo', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+      setPhoto(res.data.photoUrl);
+    } catch (err) {
+      setError('Failed to upload photo');
+    } finally {
+      setPhotoUploading(false);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSaving(true);
@@ -104,7 +129,7 @@ function Dashboard() {
     navigate('/');
   };
 
-const emergencyUrl = `http://10.1.11.43:3000/emergency/${emergencyAccessId}`;
+  const emergencyUrl = `http://10.1.11.43:3000/emergency/${emergencyAccessId}`;
 
   if (loading) return <div style={styles.loading}>Loading...</div>;
 
@@ -120,6 +145,20 @@ const emergencyUrl = `http://10.1.11.43:3000/emergency/${emergencyAccessId}`;
         <div style={styles.emergencyCard}>
           <h3 style={styles.emergencyTitle}>🔗 Your Emergency Access Link</h3>
           <p style={styles.emergencySubtitle}>Share this link or QR code with your wallet/phone case. Paramedics can access your info without logging in.</p>
+
+          {/* Photo Upload */}
+          <div style={styles.photoSection}>
+            {photo ? (
+              <img src={`http://10.1.11.43:8080${photo}`} alt="Profile" style={styles.photo} />
+            ) : (
+              <div style={styles.photoPlaceholder}>👤</div>
+            )}
+            <label style={styles.uploadBtn}>
+              {photoUploading ? 'Uploading...' : 'Upload Photo'}
+              <input type="file" accept="image/*" onChange={handlePhotoUpload} style={{ display: 'none' }} />
+            </label>
+          </div>
+
           <div style={styles.linkBox}>
             <span style={styles.linkText}>{emergencyUrl}</span>
             <button style={styles.copyBtn} onClick={() => navigator.clipboard.writeText(emergencyUrl)}>
@@ -223,6 +262,39 @@ const styles = {
   },
   emergencyTitle: { color: '#e53e3e', marginBottom: '8px', fontSize: '16px' },
   emergencySubtitle: { color: '#666', fontSize: '13px', marginBottom: '12px', lineHeight: '1.5' },
+  photoSection: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    marginBottom: '16px',
+    gap: '10px'
+  },
+  photo: {
+    width: '100px',
+    height: '100px',
+    borderRadius: '50%',
+    objectFit: 'cover',
+    border: '3px solid #e53e3e'
+  },
+  photoPlaceholder: {
+    width: '100px',
+    height: '100px',
+    borderRadius: '50%',
+    background: '#f0f0f0',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: '48px'
+  },
+  uploadBtn: {
+    padding: '8px 20px',
+    background: '#e53e3e',
+    color: 'white',
+    borderRadius: '8px',
+    cursor: 'pointer',
+    fontSize: '14px',
+    fontWeight: '600'
+  },
   linkBox: {
     display: 'flex',
     alignItems: 'center',
