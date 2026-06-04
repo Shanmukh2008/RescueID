@@ -1,18 +1,22 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { getEmergencyProfile } from '../services/api';
+import axios from 'axios';
 
 function Emergency() {
   const { id } = useParams();
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [summary, setSummary] = useState('');
+  const [summaryLoading, setSummaryLoading] = useState(false);
 
   useEffect(() => {
     const fetchProfile = async () => {
       try {
         const res = await getEmergencyProfile(id);
         setProfile(res.data);
+        generateSummary(res.data);
       } catch (err) {
         setError('No profile found for this ID.');
       } finally {
@@ -25,6 +29,24 @@ function Emergency() {
   const calculateAge = (dob) => {
     const diff = Date.now() - new Date(dob).getTime();
     return Math.floor(diff / (1000 * 60 * 60 * 24 * 365.25));
+  };
+
+  const generateSummary = async (profileData) => {
+    setSummaryLoading(true);
+    try {
+      const res = await axios.post('http://10.1.11.43:8080/api/ai/summary', {
+        profile: {
+          ...profileData,
+          age: calculateAge(profileData.dateOfBirth),
+          emergencyContacts: profileData.EmergencyContacts
+        }
+      });
+      setSummary(res.data.summary);
+    } catch (err) {
+      setSummary('Could not generate AI summary.');
+    } finally {
+      setSummaryLoading(false);
+    }
   };
 
   if (loading) return <div style={styles.center}>Loading...</div>;
@@ -43,6 +65,17 @@ function Emergency() {
       </div>
 
       <div style={styles.content}>
+
+        {/* AI Summary */}
+        <div style={styles.aiCard}>
+          <h2 style={styles.aiTitle}>🤖 AI Paramedic Summary</h2>
+          {summaryLoading ? (
+            <p style={styles.aiLoading}>Generating summary...</p>
+          ) : (
+            <p style={styles.aiText}>{summary}</p>
+          )}
+        </div>
+
         {/* Medical Info */}
         <div style={styles.card}>
           <h2 style={styles.cardTitle}>⚕️ Medical Information</h2>
@@ -111,6 +144,16 @@ const styles = {
     fontWeight: '600'
   },
   content: { maxWidth: '600px', margin: '0 auto', padding: '24px 16px' },
+  aiCard: {
+    background: '#ebf8ff',
+    border: '1px solid #bee3f8',
+    borderRadius: '12px',
+    padding: '20px',
+    marginBottom: '16px'
+  },
+  aiTitle: { fontSize: '16px', color: '#2b6cb0', marginBottom: '10px', fontWeight: '600' },
+  aiLoading: { color: '#4a90d9', fontSize: '14px', fontStyle: 'italic' },
+  aiText: { color: '#2d3748', fontSize: '15px', lineHeight: '1.7' },
   card: {
     background: 'white',
     borderRadius: '12px',
