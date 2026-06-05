@@ -55,32 +55,25 @@ function Emergency() {
   return (
     <div style={styles.container}>
       <div style={styles.header}>
-        <span style={styles.badge}>🚨 EMERGENCY ACCESS</span>
+        <span style={styles.badge}>EMERGENCY ACCESS</span>
 
-        {/* Profile Photo */}
         {profile.photo ? (
-          <img
-            src={`http://10.1.11.43:8080${profile.photo}`}
-            alt="Patient"
-            style={styles.photo}
-          />
+          <img src={`http://10.1.11.43:8080${profile.photo}`} alt="Patient" style={styles.photo} />
         ) : (
-          <div style={styles.photoPlaceholder}>👤</div>
+          <div style={styles.photoPlaceholder}>?</div>
         )}
 
         <h1 style={styles.name}>{profile.fullName}</h1>
         <div style={styles.basicInfo}>
           <span style={styles.tag}>{profile.bloodGroup}</span>
           <span style={styles.tag}>{profile.gender}</span>
-          <span style={styles.tag}>{calculateAge(profile.dateOfBirth)} years old</span>
+          <span style={styles.tag}>{calculateAge(profile.dateOfBirth)} yrs</span>
         </div>
       </div>
 
       <div style={styles.content}>
-
-        {/* AI Summary */}
         <div style={styles.aiCard}>
-          <h2 style={styles.aiTitle}>🤖 AI Paramedic Summary</h2>
+          <h2 style={styles.aiTitle}>AI Paramedic Summary</h2>
           {summaryLoading ? (
             <p style={styles.aiLoading}>Generating summary...</p>
           ) : (
@@ -88,9 +81,8 @@ function Emergency() {
           )}
         </div>
 
-        {/* Medical Info */}
         <div style={styles.card}>
-          <h2 style={styles.cardTitle}>⚕️ Medical Information</h2>
+          <h2 style={styles.cardTitle}>Medical Information</h2>
           <div style={styles.row}>
             <span style={styles.label}>Allergies</span>
             <span style={styles.value}>{profile.allergies || 'None reported'}</span>
@@ -105,16 +97,15 @@ function Emergency() {
           </div>
         </div>
 
-        {/* Emergency Contacts */}
         <div style={styles.card}>
-          <h2 style={styles.cardTitle}>📞 Emergency Contacts</h2>
+          <h2 style={styles.cardTitle}>Emergency Contacts</h2>
           {profile.EmergencyContacts?.length > 0 ? (
             profile.EmergencyContacts.map((contact, index) => (
               <div key={index} style={styles.contactCard}>
                 <div style={styles.contactName}>{contact.name}</div>
                 <div style={styles.contactRelation}>{contact.relationship}</div>
                 <a href={`tel:${contact.phone}`} style={styles.phoneBtn}>
-                  📱 {contact.phone}
+                  Call {contact.phone}
                 </a>
               </div>
             ))
@@ -123,7 +114,7 @@ function Emergency() {
           )}
         </div>
 
-        <p style={styles.footer}>Powered by RescueID • For emergency use only</p>
+        <p style={styles.footer}>Powered by RescueID — For emergency use only</p>
       </div>
     </div>
   );
@@ -142,9 +133,9 @@ const styles = {
     background: 'rgba(255,255,255,0.2)',
     padding: '4px 12px',
     borderRadius: '20px',
-    fontSize: '12px',
-    fontWeight: '600',
-    letterSpacing: '1px'
+    fontSize: '11px',
+    fontWeight: '700',
+    letterSpacing: '2px'
   },
   photo: {
     width: '100px',
@@ -163,10 +154,11 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    fontSize: '48px',
+    fontSize: '32px',
+    color: 'white',
     margin: '16px auto 0'
   },
-  name: { fontSize: '28px', margin: '12px 0 16px', fontWeight: '700' },
+  name: { fontSize: '32px', margin: '12px 0 16px', fontWeight: '800', letterSpacing: '-1px' },
   basicInfo: { display: 'flex', gap: '8px', justifyContent: 'center', flexWrap: 'wrap' },
   tag: {
     background: 'rgba(255,255,255,0.25)',

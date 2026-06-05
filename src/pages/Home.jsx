@@ -6,8 +6,7 @@ function Home() {
   return (
     <div style={styles.container}>
       <div style={styles.card}>
-        <div style={styles.logo}>🚨</div>
-        <h1 style={styles.title}>RescueID</h1>
+        <h1 style={styles.title}>RESCUE<span style={styles.titleRed}>ID</span></h1>
         <p style={styles.subtitle}>
           Your emergency medical profile, accessible instantly when it matters most.
         </p>
@@ -41,8 +40,15 @@ const styles = {
     maxWidth: '480px',
     width: '90%'
   },
-  logo: { fontSize: '48px', marginBottom: '16px' },
-  title: { fontSize: '32px', color: '#e53e3e', marginBottom: '8px' },
+  title: {
+    fontSize: '72px',
+    fontWeight: '800',
+    color: '#111',
+    letterSpacing: '-2px',
+    marginBottom: '16px',
+    lineHeight: '1'
+  },
+  titleRed: { color: '#e53e3e' },
   subtitle: { color: '#666', marginBottom: '32px', fontSize: '16px', lineHeight: '1.6' },
   buttons: { display: 'flex', gap: '12px', justifyContent: 'center' },
   primary: {

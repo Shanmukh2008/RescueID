@@ -2,6 +2,8 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getProfile, updateProfile } from '../services/api';
 import axios from 'axios';
+import Skeleton from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css';
 
 function Dashboard() {
   const navigate = useNavigate();
@@ -107,19 +109,15 @@ function Dashboard() {
       setPhotoUploading(false);
     }
   };
-  
+
   const downloadQR = () => {
-  const { jsPDF } = require('jspdf');
-  const canvas = qrRef.current;
-  const imgData = canvas.toDataURL('image/png');
-  const pdf = new jsPDF({
-    orientation: 'portrait',
-    unit: 'mm',
-    format: [80, 80]
-  });
-  pdf.addImage(imgData, 'PNG', 5, 5, 70, 70);
-  pdf.save('RescueID-QRCode.pdf');
-};
+    const { jsPDF } = require('jspdf');
+    const canvas = qrRef.current;
+    const imgData = canvas.toDataURL('image/png');
+    const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: [80, 80] });
+    pdf.addImage(imgData, 'PNG', 5, 5, 70, 70);
+    pdf.save('RescueID-QRCode.pdf');
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -144,27 +142,55 @@ function Dashboard() {
 
   const emergencyUrl = `http://10.1.11.43:3000/emergency/${emergencyAccessId}`;
 
-  if (loading) return <div style={styles.loading}>Loading...</div>;
+  if (loading) return (
+    <div style={styles.container}>
+      <div style={styles.header}>
+        <h1 style={styles.logo}>RESCUE<span style={styles.logoRed}>ID</span></h1>
+      </div>
+      <div style={styles.content}>
+        <div style={styles.emergencyCard}>
+          <Skeleton height={20} width={200} style={{ marginBottom: 8 }} />
+          <Skeleton height={14} width={300} style={{ marginBottom: 12 }} />
+          <div style={{ display: 'flex', justifyContent: 'center' }}>
+            <Skeleton height={100} width={100} circle />
+          </div>
+          <Skeleton height={40} style={{ marginTop: 12 }} />
+          <Skeleton height={160} width={160} style={{ marginTop: 16, display: 'block', margin: '16px auto' }} />
+        </div>
+        <div style={styles.section}>
+          <Skeleton height={20} width={150} style={{ marginBottom: 16 }} />
+          <Skeleton height={44} style={{ marginBottom: 12 }} />
+          <Skeleton height={44} style={{ marginBottom: 12 }} />
+          <Skeleton height={44} style={{ marginBottom: 12 }} />
+          <Skeleton height={44} style={{ marginBottom: 12 }} />
+        </div>
+        <div style={styles.section}>
+          <Skeleton height={20} width={150} style={{ marginBottom: 16 }} />
+          <Skeleton height={80} style={{ marginBottom: 12 }} />
+          <Skeleton height={80} style={{ marginBottom: 12 }} />
+          <Skeleton height={80} style={{ marginBottom: 12 }} />
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <div style={styles.container}>
       <div style={styles.header}>
-        <h1 style={styles.logo}>🚨 RescueID</h1>
+        <h1 style={styles.logo}>RESCUE<span style={styles.logoRed}>ID</span></h1>
         <button style={styles.logoutBtn} onClick={handleLogout}>Logout</button>
       </div>
 
       <div style={styles.content}>
-        {/* Emergency Access Card */}
         <div style={styles.emergencyCard}>
-          <h3 style={styles.emergencyTitle}>🔗 Your Emergency Access Link</h3>
-          <p style={styles.emergencySubtitle}>Share this link or QR code with your wallet/phone case. Paramedics can access your info without logging in.</p>
+          <h3 style={styles.emergencyTitle}>Your Emergency Access Link</h3>
+          <p style={styles.emergencySubtitle}>Share this link or QR code with your wallet or phone case. Emergency responders can access your info without logging in.</p>
 
-          {/* Photo Upload */}
           <div style={styles.photoSection}>
             {photo ? (
               <img src={`http://10.1.11.43:8080${photo}`} alt="Profile" style={styles.photo} />
             ) : (
-              <div style={styles.photoPlaceholder}>👤</div>
+              <div style={styles.photoPlaceholder}>+</div>
             )}
             <label style={styles.uploadBtn}>
               {photoUploading ? 'Uploading...' : 'Upload Photo'}
@@ -180,18 +206,17 @@ function Dashboard() {
           </div>
           <div style={styles.qrContainer}>
             <canvas ref={qrRef} />
-            <p style={styles.qrText}>Paramedics can scan this to access your profile instantly</p>
+            <p style={styles.qrText}>Scan to access emergency profile</p>
             <button style={styles.downloadBtn} onClick={downloadQR}>
               Download QR Code
             </button>
-</div>
+          </div>
         </div>
 
         <form onSubmit={handleSubmit} style={styles.form}>
           {error && <div style={styles.error}>{error}</div>}
           {success && <div style={styles.successMsg}>{success}</div>}
 
-          {/* Personal Details */}
           <div style={styles.section}>
             <h2 style={styles.sectionTitle}>Personal Details</h2>
             <input style={styles.input} name="fullName" placeholder="Full Name" value={form.fullName} onChange={handleChange} required />
@@ -210,7 +235,6 @@ function Dashboard() {
             </select>
           </div>
 
-          {/* Medical Details */}
           <div style={styles.section}>
             <h2 style={styles.sectionTitle}>Medical Details</h2>
             <textarea style={styles.textarea} name="allergies" placeholder="Allergies (e.g. Peanuts, Penicillin)" value={form.allergies} onChange={handleChange} />
@@ -218,7 +242,6 @@ function Dashboard() {
             <textarea style={styles.textarea} name="medicalConditions" placeholder="Medical Conditions (e.g. Type 2 Diabetes)" value={form.medicalConditions} onChange={handleChange} />
           </div>
 
-          {/* Emergency Contacts */}
           <div style={styles.section}>
             <h2 style={styles.sectionTitle}>Emergency Contacts</h2>
             {form.emergencyContacts.map((contact, index) => (
@@ -258,7 +281,8 @@ const styles = {
     alignItems: 'center',
     boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
   },
-  logo: { fontSize: '20px', color: '#e53e3e' },
+  logo: { fontSize: '24px', fontWeight: '800', color: '#111', letterSpacing: '-1px' },
+  logoRed: { color: '#e53e3e' },
   logoutBtn: {
     padding: '8px 20px',
     background: 'transparent',
@@ -266,7 +290,8 @@ const styles = {
     borderRadius: '8px',
     cursor: 'pointer',
     fontSize: '14px',
-    color: '#666'
+    color: '#666',
+    fontFamily: 'InterTight, sans-serif'
   },
   content: { maxWidth: '640px', margin: '0 auto', padding: '24px 16px' },
   emergencyCard: {
@@ -276,7 +301,7 @@ const styles = {
     padding: '20px',
     marginBottom: '24px'
   },
-  emergencyTitle: { color: '#e53e3e', marginBottom: '8px', fontSize: '16px' },
+  emergencyTitle: { color: '#e53e3e', marginBottom: '8px', fontSize: '16px', fontWeight: '600' },
   emergencySubtitle: { color: '#666', fontSize: '13px', marginBottom: '12px', lineHeight: '1.5' },
   photoSection: {
     display: 'flex',
@@ -300,7 +325,9 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    fontSize: '48px'
+    fontSize: '32px',
+    color: '#aaa',
+    fontWeight: '300'
   },
   uploadBtn: {
     padding: '8px 20px',
@@ -330,7 +357,8 @@ const styles = {
     cursor: 'pointer',
     fontSize: '13px',
     fontWeight: '600',
-    whiteSpace: 'nowrap'
+    whiteSpace: 'nowrap',
+    fontFamily: 'InterTight, sans-serif'
   },
   qrContainer: {
     display: 'flex',
@@ -339,10 +367,17 @@ const styles = {
     marginTop: '16px',
     gap: '8px'
   },
-  qrText: {
-    fontSize: '12px',
-    color: '#999',
-    textAlign: 'center'
+  qrText: { fontSize: '12px', color: '#999', textAlign: 'center' },
+  downloadBtn: {
+    padding: '8px 20px',
+    background: 'white',
+    color: '#e53e3e',
+    border: '1px solid #e53e3e',
+    borderRadius: '8px',
+    cursor: 'pointer',
+    fontSize: '14px',
+    fontWeight: '600',
+    fontFamily: 'InterTight, sans-serif'
   },
   form: { display: 'flex', flexDirection: 'column', gap: '16px' },
   section: {
@@ -361,7 +396,8 @@ const styles = {
     fontSize: '15px',
     outline: 'none',
     display: 'block',
-    boxSizing: 'border-box'
+    boxSizing: 'border-box',
+    fontFamily: 'InterTight, sans-serif'
   },
   textarea: {
     width: '100%',
@@ -375,7 +411,7 @@ const styles = {
     boxSizing: 'border-box',
     minHeight: '80px',
     resize: 'vertical',
-    fontFamily: 'inherit'
+    fontFamily: 'InterTight, sans-serif'
   },
   contactCard: {
     background: '#f9f9f9',
@@ -392,7 +428,8 @@ const styles = {
     color: '#e53e3e',
     borderRadius: '6px',
     cursor: 'pointer',
-    fontSize: '13px'
+    fontSize: '13px',
+    fontFamily: 'InterTight, sans-serif'
   },
   addBtn: {
     width: '100%',
@@ -402,7 +439,8 @@ const styles = {
     borderRadius: '8px',
     cursor: 'pointer',
     fontSize: '14px',
-    color: '#666'
+    color: '#666',
+    fontFamily: 'InterTight, sans-serif'
   },
   saveBtn: {
     width: '100%',
@@ -414,7 +452,8 @@ const styles = {
     fontSize: '16px',
     fontWeight: '600',
     cursor: 'pointer',
-    marginBottom: '32px'
+    marginBottom: '32px',
+    fontFamily: 'InterTight, sans-serif'
   },
   error: {
     background: '#fff5f5',
@@ -430,17 +469,7 @@ const styles = {
     borderRadius: '8px',
     fontSize: '14px'
   },
-  loading: { display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', fontSize: '18px', color: '#666' },
-downloadBtn: {
-  padding: '8px 20px',
-  background: 'white',
-  color: '#e53e3e',
-  border: '1px solid #e53e3e',
-  borderRadius: '8px',
-  cursor: 'pointer',
-  fontSize: '14px',
-  fontWeight: '600'
-}
+  loading: { display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', fontSize: '18px', color: '#666' }
 };
 
 export default Dashboard;

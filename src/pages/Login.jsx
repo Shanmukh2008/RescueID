@@ -4,25 +4,38 @@ import { login } from '../services/api';
 
 function Login() {
   const navigate = useNavigate();
-  const [error, setError] = useState('');
+  const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({ email: '', password: '' });
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
+    setErrors({ ...errors, [e.target.name]: '' });
+  };
+
+  const validate = () => {
+    const newErrors = {};
+    if (!form.email.trim()) newErrors.email = 'Email is required';
+    else if (!/\S+@\S+\.\S+/.test(form.email)) newErrors.email = 'Invalid email address';
+    if (!form.password) newErrors.password = 'Password is required';
+    return newErrors;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const newErrors = validate();
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
     setLoading(true);
-    setError('');
     try {
       const res = await login(form);
       localStorage.setItem('token', res.data.token);
       localStorage.setItem('user', JSON.stringify(res.data.user));
       navigate('/dashboard');
     } catch (err) {
-      setError(err.response?.data?.message || 'Something went wrong');
+      setErrors({ api: err.response?.data?.message || 'Something went wrong' });
     } finally {
       setLoading(false);
     }
@@ -31,24 +44,46 @@ function Login() {
   return (
     <div style={styles.container}>
       <div style={styles.card}>
-        <h1 style={styles.title}>🚨 RescueID</h1>
+        <h1 style={styles.title}>RESCUE<span style={styles.titleRed}>ID</span></h1>
         <h2 style={styles.subtitle}>Welcome back</h2>
 
-        {error && <div style={styles.error}>{error}</div>}
+        {errors.api && <div style={styles.errorBox}>{errors.api}</div>}
 
         <form onSubmit={handleSubmit}>
-          <input style={styles.input} name="email" type="email" placeholder="Email" onChange={handleChange} required />
-          <input style={styles.input} name="password" type="password" placeholder="Password" onChange={handleChange} required />
+          <div style={styles.field}>
+            <input
+              style={{...styles.input, ...(errors.email ? styles.inputError : {})}}
+              name="email"
+              type="email"
+              placeholder="Email"
+              onChange={handleChange}
+            />
+            {errors.email && <span style={styles.fieldError}>{errors.email}</span>}
+          </div>
+
+          <div style={styles.field}>
+            <input
+              style={{...styles.input, ...(errors.password ? styles.inputError : {})}}
+              name="password"
+              type="password"
+              placeholder="Password"
+              onChange={handleChange}
+            />
+            {errors.password && <span style={styles.fieldError}>{errors.password}</span>}
+          </div>
 
           <button style={styles.button} type="submit" disabled={loading}>
             {loading ? 'Logging in...' : 'Login'}
           </button>
         </form>
 
-        <p style={styles.link}>
-          Don't have an account?{' '}
-          <span style={styles.linkText} onClick={() => navigate('/register')}>Register</span>
-        </p>
+       <p style={styles.link}>
+  <span style={styles.linkText} onClick={() => navigate('/forgot-password')}>Forgot password?</span>
+</p>
+<p style={styles.link}>
+  Don't have an account?{' '}
+  <span style={styles.linkText} onClick={() => navigate('/register')}>Register</span>
+</p>
       </div>
     </div>
   );
@@ -71,18 +106,24 @@ const styles = {
     maxWidth: '440px',
     width: '100%'
   },
-  title: { fontSize: '24px', color: '#e53e3e', marginBottom: '4px' },
+  title: { fontSize: '48px', fontWeight: '800', color: '#111', letterSpacing: '-2px', marginBottom: '4px', lineHeight: '1' },
+  titleRed: { color: '#e53e3e' },
   subtitle: { fontSize: '18px', color: '#333', marginBottom: '24px', fontWeight: '400' },
+  field: { marginBottom: '4px' },
   input: {
     width: '100%',
     padding: '12px',
-    marginBottom: '12px',
+    marginBottom: '4px',
     borderRadius: '8px',
     border: '1px solid #ddd',
     fontSize: '15px',
     outline: 'none',
-    display: 'block'
+    display: 'block',
+    fontFamily: 'InterTight, sans-serif',
+    boxSizing: 'border-box'
   },
+  inputError: { border: '1px solid #e53e3e', background: '#fff5f5' },
+  fieldError: { color: '#e53e3e', fontSize: '12px', marginBottom: '8px', display: 'block' },
   button: {
     width: '100%',
     padding: '13px',
@@ -93,9 +134,10 @@ const styles = {
     fontSize: '16px',
     fontWeight: '600',
     cursor: 'pointer',
-    marginTop: '4px'
+    marginTop: '8px',
+    fontFamily: 'InterTight, sans-serif'
   },
-  error: {
+  errorBox: {
     background: '#fff5f5',
     color: '#e53e3e',
     padding: '10px',

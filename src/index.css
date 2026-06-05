@@ -1,13 +1,30 @@
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+@font-face {
+  font-family: 'InterTight';
+  src: url('./fonts/InterTight-VariableFont_wght.ttf') format('truetype');
+  font-weight: 100 900;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+@font-face {
+  font-family: 'InterTight';
+  src: url('./fonts/InterTight-Italic-VariableFont_wght.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: italic;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'InterTight', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  background: #f0f4f8;
+}
+
+h1, h2, h3 {
+  font-family: 'InterTight', sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.5px;
 }
