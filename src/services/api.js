@@ -17,3 +17,5 @@ export const login = (data) => API.post('/auth/login', data);
 export const getProfile = () => API.get('/profile/me');
 export const updateProfile = (data) => API.put('/profile/me', data);
 export const getEmergencyProfile = (id) => API.get(`/profile/emergency/${id}`);
+export const changePassword = (data) => API.put('/account/change-password', data);
+export const deleteAccount = () => API.delete('/account/delete');
