@@ -10,10 +10,10 @@ require('./models/EmergencyContact');
 const app = express();
 
 // Middleware
-app.use(cors({
+ app.use(cors({
   origin: [
     'http://localhost:3000',
-    'https://your-netlify-url.netlify.app'
+    'https://rescueid.netlify.app'
   ],
   credentials: true
 }));
