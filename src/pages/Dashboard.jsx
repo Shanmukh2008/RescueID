@@ -188,7 +188,7 @@ function Dashboard() {
     navigate('/');
   };
 
-  const emergencyUrl = `http://10.1.11.43:3000/emergency/${emergencyAccessId}`;
+  const emergencyUrl = `https://rescueid.tech/emergency/${emergencyAccessId}`;
 
   const s = {
     container: { minHeight: '100vh', background: darkMode ? '#0f0f0f' : '#f0f4f8' },
