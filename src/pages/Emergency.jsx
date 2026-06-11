@@ -40,7 +40,7 @@ function Emergency() {
   const generateSummary = async (profileData) => {
     setSummaryLoading(true);
     try {
-      const res = await axios.post('http://192.168.84.197:8080/api/ai/summary', {
+      const res = await axios.post('rescueid-production.up.railway.app/api/ai/summary', {
         profile: { ...profileData, age: calculateAge(profileData.dateOfBirth), emergencyContacts: profileData.EmergencyContacts }
       });
       setSummary(res.data.summary);
