@@ -13,10 +13,14 @@ const app = express();
 app.use(cors({
   origin: [
     'http://localhost:3000',
-    'https://rescueid.netlify.app'
+    'https://rescueid.netlify.app',
+    'http://rescueid.tech',
+    'https://rescueid.tech',
+    'http://www.rescueid.tech',
+    'https://www.rescueid.tech'
   ],
   credentials: true
-}));
+}));;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
