@@ -10,6 +10,7 @@
     "axios": "^1.16.1",
     "html2canvas": "^1.4.1",
     "jspdf": "^4.2.1",
+    "qrcode": "^1.5.4",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
     "react-loading-skeleton": "^3.5.0",
