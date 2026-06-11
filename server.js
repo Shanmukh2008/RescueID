@@ -29,12 +29,12 @@ const PORT = process.env.PORT || 8000;
 
 sequelize.authenticate()
   .then(() => {
-    console.log('MySQL connected');
+    console.log('PostgreSQL connected');
     return sequelize.sync();
   })
   .then(() => {
     app.listen(PORT, '0.0.0.0', () => console.log(`Server running on port ${PORT}`));
   })
-  .catch((err) => console.error('MySQL connection error:', err));
+  .catch((err) => console.error('PostgreSQL connection error:', err));
 
 module.exports = app;
