@@ -59,7 +59,7 @@ router.get('/emergency/:emergencyAccessId', async (req, res) => {
   try {
     const user = await User.findOne({
       where: { emergencyAccessId: req.params.emergencyAccessId },
-      attributes: ['fullName', 'dateOfBirth', 'gender', 'bloodGroup', 'allergies', 'medications', 'medicalConditions'],
+      attributes: ['fullName', 'dateOfBirth', 'gender', 'bloodGroup', 'allergies', 'medications', 'medicalConditions', 'photo'],
       include: [{ 
         model: EmergencyContact,
         attributes: ['name', 'relationship', 'phone']

@@ -48,11 +48,16 @@ const User = sequelize.define('User', {
     allowNull: false
   },
   // Emergency access
-  emergencyAccessId: {
-    type: DataTypes.UUID,
-    defaultValue: DataTypes.UUIDV4,
-    unique: true
-  }
+emergencyAccessId: {
+  type: DataTypes.UUID,
+  defaultValue: DataTypes.UUIDV4,
+  unique: true
+},
+// Profile photo
+photo: {
+  type: DataTypes.STRING,
+  allowNull: true
+}
 });
 
 module.exports = User;
