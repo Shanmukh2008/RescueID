@@ -76,22 +76,27 @@ function Dashboard() {
   const removeContact = (index) => setForm({ ...form, emergencyContacts: form.emergencyContacts.filter((_, i) => i !== index) });
 
   const handlePhotoUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    setPhotoUploading(true);
-    try {
-      const formData = new FormData();
-      formData.append('photo', file);
-      const res = await axios.post('https://rescueid-production.up.railway.app/api/upload/photo', formData, {
-        headers: { 'Content-Type': 'multipart/form-data', Authorization: `Bearer ${localStorage.getItem('token')}` }
-      });
-      setPhoto(res.data.photoUrl);
-    } catch (err) {
-      setError('Failed to upload photo');
-    } finally {
-      setPhotoUploading(false);
-    }
-  };
+  const file = e.target.files[0];
+  if (!file) return;
+  setPhotoUploading(true);
+  try {
+    const formData = new FormData();
+    formData.append('photo', file);
+    const token = localStorage.getItem('token');
+    const res = await axios.post('https://rescueid-production.up.railway.app/api/upload/photo', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        Authorization: `Bearer ${token}`
+      }
+    });
+    setPhoto(res.data.photoUrl);
+  } catch (err) {
+    setError('Failed to upload photo');
+    console.error(err);
+  } finally {
+    setPhotoUploading(false);
+  }
+};
 
   const downloadQR = () => {
     const { jsPDF } = require('jspdf');
@@ -273,7 +278,11 @@ function Dashboard() {
           <h3 style={s.emergencyTitle}>{t.dashboard.emergencyLink}</h3>
           <p style={s.emergencySubtitle}>{t.dashboard.emergencySubtitle}</p>
           <div style={s.photoSection}>
-            {photo ? <img src={photo} alt="Profile" style={s.photo} /> : <div style={s.photoPlaceholder}>+</div>}
+            {photo ? (
+  <img src={photo} alt="Profile" style={s.photo} />
+) : (
+  <div style={s.photoPlaceholder}>+</div>
+)}
             <label style={s.uploadBtn}>
               {photoUploading ? t.dashboard.uploading : t.dashboard.uploadPhoto}
               <input type="file" accept="image/*" onChange={handlePhotoUpload} style={{ display: 'none' }} />
