@@ -82,7 +82,7 @@ function Dashboard() {
     try {
       const formData = new FormData();
       formData.append('photo', file);
-      const res = await axios.post('rescueid-production.up.railway.app/api/upload/photo', formData, {
+      const res = await axios.post('https://rescueid-production.up.railway.app/api/upload/photo', formData, {
         headers: { 'Content-Type': 'multipart/form-data', Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
       setPhoto(res.data.photoUrl);
