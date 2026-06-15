@@ -1,18 +1,19 @@
 const express = require('express');
-const Groq = require('groq-sdk');
+const OpenAI = require('openai');
 
 const router = express.Router();
 
-const groq = new Groq({
-  apiKey: process.env.GROQ_API_KEY
+const openai = new OpenAI({
+  apiKey: process.env.NVIDIA_API_KEY,
+  baseURL: 'https://integrate.api.nvidia.com/v1',
 });
 
 router.post('/summary', async (req, res) => {
   try {
     const { profile } = req.body;
 
-    const completion = await groq.chat.completions.create({
-      model: 'llama-3.3-70b-versatile',
+    const completion = await openai.chat.completions.create({
+      model: 'openai/gpt-oss-120b',
       messages: [
         {
           role: 'system',
@@ -30,10 +31,14 @@ router.post('/summary', async (req, res) => {
 - Medical Conditions: ${profile.medicalConditions || 'None reported'}
 - Emergency Contacts: ${profile.emergencyContacts?.map(c => `${c.name} (${c.relationship}): ${c.phone}`).join(', ') || 'None'}`
         }
-      ]
+      ],
+      temperature: 1,
+      top_p: 1,
+      max_tokens: 1024,
+      stream: false
     });
 
-    const summary = completion.choices[0].message.content;
+    const summary = completion.choices[0]?.message?.content;
     res.json({ summary });
 
   } catch (error) {
