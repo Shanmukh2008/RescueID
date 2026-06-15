@@ -273,7 +273,7 @@ function Dashboard() {
           <h3 style={s.emergencyTitle}>{t.dashboard.emergencyLink}</h3>
           <p style={s.emergencySubtitle}>{t.dashboard.emergencySubtitle}</p>
           <div style={s.photoSection}>
-            {photo ? <img src={`http://10.1.11.43:8080${photo}`} alt="Profile" style={s.photo} /> : <div style={s.photoPlaceholder}>+</div>}
+            {photo ? <img src={photo} alt="Profile" style={s.photo} /> : <div style={s.photoPlaceholder}>+</div>}
             <label style={s.uploadBtn}>
               {photoUploading ? t.dashboard.uploading : t.dashboard.uploadPhoto}
               <input type="file" accept="image/*" onChange={handlePhotoUpload} style={{ display: 'none' }} />

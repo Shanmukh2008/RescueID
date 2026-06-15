@@ -115,7 +115,7 @@ function Emergency() {
       <div style={s.header}>
         <span style={s.badge}>{t.emergency.badge}</span>
         {profile.photo ? (
-          <img src={`https://rescueid-production.up.railway.app${profile.photo}`} alt="Patient" style={s.photo} />
+          <img src={profile.photo} alt="Patient" style={s.photo} />
         ) : (
           <div style={s.photoPlaceholder}>?</div>
         )}
