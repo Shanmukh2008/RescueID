@@ -26,11 +26,16 @@ const upload = multer({ storage });
 
 router.post('/photo', auth, upload.single('photo'), async (req, res) => {
   try {
+    console.log('Upload request received');
+    console.log('User ID:', req.userId);
+    console.log('File:', req.file);
     const photoUrl = req.file.path;
+    console.log('Photo URL:', photoUrl);
     await User.update({ photo: photoUrl }, { where: { id: req.userId } });
+    console.log('Database updated');
     res.json({ message: 'Photo uploaded successfully', photoUrl });
   } catch (error) {
-    console.error(error);
+    console.error('Upload error:', error);
     res.status(500).json({ message: 'Failed to upload photo' });
   }
 });
