@@ -41,7 +41,7 @@ function Emergency() {
   const generateSummary = async (profileData) => {
     setSummaryLoading(true);
     try {
-      const res = await axios.post('rescueid-production.up.railway.app/api/ai/summary', {
+      const res = await axios.post('https://rescueid-production.up.railway.app/api/ai/summary', {
         profile: { ...profileData, age: calculateAge(profileData.dateOfBirth), emergencyContacts: profileData.EmergencyContacts }
       });
       setSummary(res.data.summary);
@@ -50,6 +50,33 @@ function Emergency() {
     } finally {
       setSummaryLoading(false);
     }
+  };
+
+  const printEmergencyCard = () => {
+    const pdf = new jsPDF({ orientation: 'landscape', unit: 'mm', format: [85, 54] });
+    pdf.setFillColor(229, 62, 62);
+    pdf.rect(0, 0, 85, 18, 'F');
+    pdf.setTextColor(255, 255, 255);
+    pdf.setFontSize(14);
+    pdf.setFont('helvetica', 'bold');
+    pdf.text('RESCUEID', 5, 8);
+    pdf.setFontSize(7);
+    pdf.setFont('helvetica', 'normal');
+    pdf.text('EMERGENCY MEDICAL CARD', 5, 13);
+    pdf.setTextColor(0, 0, 0);
+    pdf.setFontSize(11);
+    pdf.setFont('helvetica', 'bold');
+    pdf.text(profile.fullName, 5, 25);
+    pdf.setFontSize(8);
+    pdf.setFont('helvetica', 'normal');
+    pdf.text(`Blood Group: ${profile.bloodGroup}`, 5, 31);
+    pdf.text(`DOB: ${profile.dateOfBirth}`, 5, 36);
+    if (profile.allergies) pdf.text(`Allergies: ${profile.allergies.substring(0, 40)}`, 5, 41);
+    if (profile.medicalConditions) pdf.text(`Conditions: ${profile.medicalConditions.substring(0, 40)}`, 5, 46);
+    if (profile.EmergencyContacts?.[0]?.name) {
+      pdf.text(`Emergency: ${profile.EmergencyContacts[0].name} - ${profile.EmergencyContacts[0].phone}`, 5, 51);
+    }
+    pdf.save('RescueID-EmergencyCard.pdf');
   };
 
   const s = {
@@ -76,45 +103,19 @@ function Emergency() {
     contactName: { fontSize: '16px', fontWeight: '600', color: darkMode ? '#f0f0f0' : '#333', marginBottom: '4px' },
     contactRelation: { fontSize: '13px', color: darkMode ? '#aaa' : '#999', marginBottom: '10px' },
     phoneBtn: { display: 'inline-block', padding: '8px 16px', background: '#e53e3e', color: 'white', borderRadius: '8px', textDecoration: 'none', fontSize: '14px', fontWeight: '600', width: isMobile ? '100%' : 'auto', textAlign: 'center', boxSizing: 'border-box' },
+    downloadBtn: { padding: '12px 32px', background: '#e53e3e', color: 'white', border: 'none', borderRadius: '8px', fontSize: '15px', fontWeight: '600', cursor: 'pointer', fontFamily: 'InterTight, sans-serif', width: isMobile ? '100%' : 'auto' },
     footer: { textAlign: 'center', color: darkMode ? '#555' : '#999', fontSize: '12px', marginTop: '8px', marginBottom: '32px' }
   };
 
   if (loading) return <div style={s.center}>Loading...</div>;
   if (error) return <div style={s.center}>{error}</div>;
 
-  const printEmergencyCard = () => {
-  const pdf = new jsPDF({ orientation: 'landscape', unit: 'mm', format: [85, 54] });
-  pdf.setFillColor(229, 62, 62);
-  pdf.rect(0, 0, 85, 18, 'F');
-  pdf.setTextColor(255, 255, 255);
-  pdf.setFontSize(14);
-  pdf.setFont('helvetica', 'bold');
-  pdf.text('RESCUEID', 5, 8);
-  pdf.setFontSize(7);
-  pdf.setFont('helvetica', 'normal');
-  pdf.text('EMERGENCY MEDICAL CARD', 5, 13);
-  pdf.setTextColor(0, 0, 0);
-  pdf.setFontSize(11);
-  pdf.setFont('helvetica', 'bold');
-  pdf.text(profile.fullName, 5, 25);
-  pdf.setFontSize(8);
-  pdf.setFont('helvetica', 'normal');
-  pdf.text(`Blood Group: ${profile.bloodGroup}`, 5, 31);
-  pdf.text(`DOB: ${profile.dateOfBirth}`, 5, 36);
-  if (profile.allergies) pdf.text(`Allergies: ${profile.allergies.substring(0, 40)}`, 5, 41);
-  if (profile.medicalConditions) pdf.text(`Conditions: ${profile.medicalConditions.substring(0, 40)}`, 5, 46);
-  if (profile.EmergencyContacts?.[0]?.name) {
-    pdf.text(`Emergency: ${profile.EmergencyContacts[0].name} - ${profile.EmergencyContacts[0].phone}`, 5, 51);
-  }
-  pdf.save('RescueID-EmergencyCard.pdf');
-};
-
   return (
     <div style={s.container}>
       <div style={s.header}>
         <span style={s.badge}>{t.emergency.badge}</span>
         {profile.photo ? (
-          <img src={`http://10.1.11.43:8080${profile.photo}`} alt="Patient" style={s.photo} />
+          <img src={`https://rescueid-production.up.railway.app${profile.photo}`} alt="Patient" style={s.photo} />
         ) : (
           <div style={s.photoPlaceholder}>?</div>
         )}
@@ -154,29 +155,16 @@ function Emergency() {
           )}
         </div>
 
+        <div style={{ textAlign: 'center', marginBottom: '16px' }}>
+          <button onClick={printEmergencyCard} style={s.downloadBtn}>
+            Download Emergency Card
+          </button>
+        </div>
+
         <p style={s.footer}>{t.emergency.footer}</p>
       </div>
     </div>
   );
 }
-<div style={{ textAlign: 'center', marginBottom: '16px' }}>
-  <button
-    onClick={printEmergencyCard}
-    style={{
-      padding: '12px 32px',
-      background: '#e53e3e',
-      color: 'white',
-      border: 'none',
-      borderRadius: '8px',
-      fontSize: '15px',
-      fontWeight: '600',
-      cursor: 'pointer',
-      fontFamily: 'InterTight, sans-serif',
-      width: isMobile ? '100%' : 'auto'
-    }}
-  >
-    Download Emergency Card
-  </button>
-</div>
 
 export default Emergency;
