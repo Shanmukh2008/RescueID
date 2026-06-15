@@ -25,8 +25,14 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Routes
+// Routes
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/profile', require('./routes/profile'));
+app.use('/api/upload', require('./routes/upload'));
+app.use('/api/ai', require('./routes/ai'));
+app.use('/api/reset', require('./routes/reset'));
+app.use('/api/account', require('./routes/account'));
+app.use('/uploads', express.static('uploads'));
 
 // Test route
 app.get('/', (req, res) => {
