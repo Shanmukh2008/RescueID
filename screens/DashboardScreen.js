@@ -2,10 +2,10 @@ import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, Alert,
 import { useState, useEffect } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SecureStore from 'expo-secure-store';
 import { useTheme } from '../ThemeContext';
 import * as Location from 'expo-location';
 import * as Speech from 'expo-speech';
-import * as SecureStore from 'expo-secure-store';
 
 const API_URL = 'https://rescueid-production.up.railway.app/api';
 
@@ -24,34 +24,32 @@ export default function DashboardScreen({ navigation, route }) {
   useEffect(() => { fetchProfile(); }, []);
 
   const fetchProfile = async () => {
-  try {
-    const res = await fetch(`${API_URL}/profile/me`, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-    const data = await res.json();
-    const profileData = {
-      fullName: data.fullName || '', dateOfBirth: data.dateOfBirth || '',
-      gender: data.gender || '', bloodGroup: data.bloodGroup || '',
-      allergies: data.allergies || '', medications: data.medications || '',
-      medicalConditions: data.medicalConditions || '',
-      emergencyContacts: data.EmergencyContacts?.length > 0 ? data.EmergencyContacts : [{ name: '', relationship: '', phone: '' }]
-    };
-    setForm(profileData);
-    // Save to local storage for offline use
-    await SecureStore.setItemAsync('cachedProfile', JSON.stringify(profileData));
-  } catch (err) {
-    // Try to load from local cache if offline
-    const cached = await SecureStore.getItemAsync('cachedProfile');
-    if (cached) {
-      setForm(JSON.parse(cached));
-      Alert.alert('Offline Mode', 'Showing cached profile. Some features may not work.');
-    } else {
-      Alert.alert('Error', 'No internet connection and no cached profile found.');
+    try {
+      const res = await fetch(`${API_URL}/profile/me`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await res.json();
+      const profileData = {
+        fullName: data.fullName || '', dateOfBirth: data.dateOfBirth || '',
+        gender: data.gender || '', bloodGroup: data.bloodGroup || '',
+        allergies: data.allergies || '', medications: data.medications || '',
+        medicalConditions: data.medicalConditions || '',
+        emergencyContacts: data.EmergencyContacts?.length > 0 ? data.EmergencyContacts : [{ name: '', relationship: '', phone: '' }]
+      };
+      setForm(profileData);
+      await SecureStore.setItemAsync('cachedProfile', JSON.stringify(profileData));
+    } catch (err) {
+      const cached = await SecureStore.getItemAsync('cachedProfile');
+      if (cached) {
+        setForm(JSON.parse(cached));
+        Alert.alert('Offline Mode', 'Showing cached profile. Some features may not work.');
+      } else {
+        Alert.alert('Error', 'No internet connection and no cached profile found.');
+      }
+    } finally {
+      setLoading(false);
     }
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   const handleSave = async () => {
     setSaving(true);
@@ -61,6 +59,7 @@ export default function DashboardScreen({ navigation, route }) {
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify(form)
       });
+      await SecureStore.setItemAsync('cachedProfile', JSON.stringify(form));
       Alert.alert('Success', 'Profile updated successfully!');
     } catch (err) {
       Alert.alert('Error', 'Failed to update profile');
@@ -78,6 +77,7 @@ export default function DashboardScreen({ navigation, route }) {
   const handleLogout = async () => {
     await AsyncStorage.removeItem('token');
     await AsyncStorage.removeItem('user');
+    await SecureStore.deleteItemAsync('cachedProfile');
     navigation.navigate('Home');
   };
 
@@ -123,6 +123,9 @@ export default function DashboardScreen({ navigation, route }) {
         <Text style={[styles.emergencyUrl, { color: colors.subtext }]}>rescueid.tech/emergency/{user.emergencyAccessId}</Text>
         <TouchableOpacity style={styles.emergencyBtn} onPress={() => navigation.navigate('Emergency', { id: user.emergencyAccessId })}>
           <Text style={styles.emergencyBtnText}>Preview Emergency Page</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={[styles.emergencyBtn, { marginTop: 8, backgroundColor: '#333' }]} onPress={() => navigation.navigate('Scanner')}>
+          <Text style={styles.emergencyBtnText}>Scan QR Code</Text>
         </TouchableOpacity>
       </View>
 
