@@ -1,6 +1,7 @@
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, Alert, ActivityIndicator } from 'react-native';
 import { useState, useEffect } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const API_URL = 'https://rescueid-production.up.railway.app/api';
 
@@ -59,6 +60,12 @@ export default function DashboardScreen({ navigation, route }) {
     setForm({ ...form, emergencyContacts: updated });
   };
 
+  const handleLogout = async () => {
+  await AsyncStorage.removeItem('token');
+  await AsyncStorage.removeItem('user');
+  navigation.navigate('Home');
+};
+
   if (loading) return (
     <View style={styles.loadingContainer}>
       <ActivityIndicator size="large" color="#e53e3e" />
@@ -113,11 +120,16 @@ export default function DashboardScreen({ navigation, route }) {
           </TouchableOpacity>
         )}
       </View>
+          <TouchableOpacity onPress={handleLogout}>
+  <Text style={styles.logout}>Logout</Text>
+</TouchableOpacity>
 
       <TouchableOpacity style={[styles.saveBtn, { marginBottom: insets.bottom + 16 }]} onPress={handleSave} disabled={saving}>
         <Text style={styles.saveBtnText}>{saving ? 'Saving...' : 'Save Profile'}</Text>
       </TouchableOpacity>
     </ScrollView>
+
+    
   );
 }
 

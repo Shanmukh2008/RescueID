@@ -1,6 +1,7 @@
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, Alert } from 'react-native';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const API_URL = 'https://rescueid-production.up.railway.app/api';
 
@@ -23,6 +24,8 @@ export default function LoginScreen({ navigation }) {
       });
       const data = await res.json();
       if (res.ok) {
+        await AsyncStorage.setItem('token', data.token);
+        await AsyncStorage.setItem('user', JSON.stringify(data.user));
         navigation.navigate('Dashboard', { token: data.token, user: data.user });
       } else {
         Alert.alert('Error', data.message);
