@@ -4,6 +4,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useState, useEffect } from 'react';
 import { View, ActivityIndicator } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { ThemeProvider } from './ThemeContext';
 import HomeScreen from './screens/HomeScreen';
 import LoginScreen from './screens/LoginScreen';
 import RegisterScreen from './screens/RegisterScreen';
@@ -16,9 +17,7 @@ export default function App() {
   const [initialRoute, setInitialRoute] = useState(null);
   const [initialParams, setInitialParams] = useState(null);
 
-  useEffect(() => {
-    checkLogin();
-  }, []);
+  useEffect(() => { checkLogin(); }, []);
 
   const checkLogin = async () => {
     try {
@@ -42,28 +41,30 @@ export default function App() {
   );
 
   return (
-    <SafeAreaProvider>
-      <NavigationContainer>
-        <Stack.Navigator screenOptions={{ headerShown: false }}>
-          {initialRoute === 'Dashboard' ? (
-            <>
-              <Stack.Screen name="Dashboard" component={DashboardScreen} initialParams={initialParams} />
-              <Stack.Screen name="Emergency" component={EmergencyScreen} />
-              <Stack.Screen name="Home" component={HomeScreen} />
-              <Stack.Screen name="Login" component={LoginScreen} />
-              <Stack.Screen name="Register" component={RegisterScreen} />
-            </>
-          ) : (
-            <>
-              <Stack.Screen name="Home" component={HomeScreen} />
-              <Stack.Screen name="Login" component={LoginScreen} />
-              <Stack.Screen name="Register" component={RegisterScreen} />
-              <Stack.Screen name="Dashboard" component={DashboardScreen} />
-              <Stack.Screen name="Emergency" component={EmergencyScreen} />
-            </>
-          )}
-        </Stack.Navigator>
-      </NavigationContainer>
-    </SafeAreaProvider>
+    <ThemeProvider>
+      <SafeAreaProvider>
+        <NavigationContainer>
+          <Stack.Navigator screenOptions={{ headerShown: false }}>
+            {initialRoute === 'Dashboard' ? (
+              <>
+                <Stack.Screen name="Dashboard" component={DashboardScreen} initialParams={initialParams} />
+                <Stack.Screen name="Emergency" component={EmergencyScreen} />
+                <Stack.Screen name="Home" component={HomeScreen} />
+                <Stack.Screen name="Login" component={LoginScreen} />
+                <Stack.Screen name="Register" component={RegisterScreen} />
+              </>
+            ) : (
+              <>
+                <Stack.Screen name="Home" component={HomeScreen} />
+                <Stack.Screen name="Login" component={LoginScreen} />
+                <Stack.Screen name="Register" component={RegisterScreen} />
+                <Stack.Screen name="Dashboard" component={DashboardScreen} />
+                <Stack.Screen name="Emergency" component={EmergencyScreen} />
+              </>
+            )}
+          </Stack.Navigator>
+        </NavigationContainer>
+      </SafeAreaProvider>
+    </ThemeProvider>
   );
 }
