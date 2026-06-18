@@ -5,6 +5,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTheme } from '../ThemeContext';
 import * as Location from 'expo-location';
 import * as Speech from 'expo-speech';
+import * as SecureStore from 'expo-secure-store';
 
 const API_URL = 'https://rescueid-production.up.railway.app/api';
 
@@ -23,24 +24,34 @@ export default function DashboardScreen({ navigation, route }) {
   useEffect(() => { fetchProfile(); }, []);
 
   const fetchProfile = async () => {
-    try {
-      const res = await fetch(`${API_URL}/profile/me`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      const data = await res.json();
-      setForm({
-        fullName: data.fullName || '', dateOfBirth: data.dateOfBirth || '',
-        gender: data.gender || '', bloodGroup: data.bloodGroup || '',
-        allergies: data.allergies || '', medications: data.medications || '',
-        medicalConditions: data.medicalConditions || '',
-        emergencyContacts: data.EmergencyContacts?.length > 0 ? data.EmergencyContacts : [{ name: '', relationship: '', phone: '' }]
-      });
-    } catch (err) {
-      Alert.alert('Error', 'Failed to load profile');
-    } finally {
-      setLoading(false);
+  try {
+    const res = await fetch(`${API_URL}/profile/me`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    const data = await res.json();
+    const profileData = {
+      fullName: data.fullName || '', dateOfBirth: data.dateOfBirth || '',
+      gender: data.gender || '', bloodGroup: data.bloodGroup || '',
+      allergies: data.allergies || '', medications: data.medications || '',
+      medicalConditions: data.medicalConditions || '',
+      emergencyContacts: data.EmergencyContacts?.length > 0 ? data.EmergencyContacts : [{ name: '', relationship: '', phone: '' }]
+    };
+    setForm(profileData);
+    // Save to local storage for offline use
+    await SecureStore.setItemAsync('cachedProfile', JSON.stringify(profileData));
+  } catch (err) {
+    // Try to load from local cache if offline
+    const cached = await SecureStore.getItemAsync('cachedProfile');
+    if (cached) {
+      setForm(JSON.parse(cached));
+      Alert.alert('Offline Mode', 'Showing cached profile. Some features may not work.');
+    } else {
+      Alert.alert('Error', 'No internet connection and no cached profile found.');
     }
-  };
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handleSave = async () => {
     setSaving(true);
