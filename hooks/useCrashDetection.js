@@ -121,5 +121,5 @@ export default function useCrashDetection(profile, enabled = true) {
     }
   };
 
-  return { crashDetected, countdown, cancelCrash };
+return { crashDetected, countdown, cancelCrash, triggerCrashAlert };
 }

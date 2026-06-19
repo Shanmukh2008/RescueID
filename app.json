@@ -13,7 +13,10 @@
     },
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.rescueid.app"
+      "bundleIdentifier": "com.rescueid.app",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -21,6 +24,12 @@
         "backgroundColor": "#e53e3e"
       },
       "package": "com.rescueid.app"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "ab2d0b74-8117-42bd-a8d6-4727dd055600"
+      }
+    },
+    "owner": "shanmukh2008"
   }
 }

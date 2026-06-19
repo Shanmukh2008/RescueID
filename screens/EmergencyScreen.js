@@ -1,7 +1,8 @@
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Linking, ActivityIndicator } from 'react-native';
 import { useState, useEffect } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useTheme } from '../ThemeContext';
+import * as Print from 'expo-print';
+import * as Sharing from 'expo-sharing';import { useTheme } from '../ThemeContext';
 
 const API_URL = 'https://rescueid-production.up.railway.app/api';
 
@@ -65,6 +66,45 @@ export default function EmergencyScreen({ route }) {
     </View>
   );
 
+  const printEmergencyCard = async () => {
+  const html = `
+    <html>
+      <body style="font-family: Arial, sans-serif; padding: 20px; max-width: 400px;">
+        <div style="background: #e53e3e; padding: 16px; border-radius: 8px; margin-bottom: 16px;">
+          <h1 style="color: white; margin: 0; font-size: 24px;">RESCUEID</h1>
+          <p style="color: rgba(255,255,255,0.8); margin: 4px 0 0; font-size: 12px;">EMERGENCY MEDICAL CARD</p>
+        </div>
+        <h2 style="font-size: 20px; margin-bottom: 8px;">${profile.fullName}</h2>
+        <p style="color: #666; margin: 4px 0;"><strong>Blood Group:</strong> ${profile.bloodGroup}</p>
+        <p style="color: #666; margin: 4px 0;"><strong>Date of Birth:</strong> ${profile.dateOfBirth}</p>
+        <p style="color: #666; margin: 4px 0;"><strong>Gender:</strong> ${profile.gender}</p>
+        <hr style="margin: 16px 0; border-color: #eee;" />
+        <h3 style="font-size: 16px; margin-bottom: 8px;">Medical Information</h3>
+        <p style="color: #666; margin: 4px 0;"><strong>Allergies:</strong> ${profile.allergies || 'None reported'}</p>
+        <p style="color: #666; margin: 4px 0;"><strong>Medications:</strong> ${profile.medications || 'None reported'}</p>
+        <p style="color: #666; margin: 4px 0;"><strong>Conditions:</strong> ${profile.medicalConditions || 'None reported'}</p>
+        <hr style="margin: 16px 0; border-color: #eee;" />
+        <h3 style="font-size: 16px; margin-bottom: 8px;">Emergency Contacts</h3>
+        ${profile.EmergencyContacts?.map(c => `
+          <p style="color: #666; margin: 4px 0;"><strong>${c.name}</strong> (${c.relationship}): ${c.phone}</p>
+        `).join('') || '<p style="color: #666;">None</p>'}
+        <hr style="margin: 16px 0; border-color: #eee;" />
+        <p style="color: #999; font-size: 11px; text-align: center;">Powered by RescueID — For emergency use only</p>
+      </body>
+    </html>
+  `;
+
+  try {
+    const { uri } = await Print.printToFileAsync({ html });
+    await Sharing.shareAsync(uri, {
+      mimeType: 'application/pdf',
+      dialogTitle: 'Share Emergency Card'
+    });
+  } catch (err) {
+    Alert.alert('Error', 'Failed to generate emergency card');
+  }
+};
+
   return (
     <ScrollView style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
@@ -76,7 +116,9 @@ export default function EmergencyScreen({ route }) {
           <Text style={styles.tag}>{calculateAge(profile.dateOfBirth)} yrs</Text>
         </View>
       </View>
-
+<TouchableOpacity style={styles.printBtn} onPress={printEmergencyCard}>
+  <Text style={styles.printBtnText}>Download Emergency Card</Text>
+</TouchableOpacity>
       <View style={[styles.aiCard, { backgroundColor: darkMode ? '#1a2233' : '#ebf8ff', borderColor: darkMode ? '#2a3a4a' : '#bee3f8' }]}>
         <Text style={[styles.aiTitle, { color: darkMode ? '#90cdf4' : '#2b6cb0' }]}>AI Paramedic Summary</Text>
         {summaryLoading ? <ActivityIndicator color="#2b6cb0" /> : <Text style={[styles.aiText, { color: darkMode ? '#e2e8f0' : '#2d3748' }]}>{summary}</Text>}
@@ -108,6 +150,7 @@ export default function EmergencyScreen({ route }) {
 
       <Text style={[styles.footer, { marginBottom: insets.bottom + 16, color: colors.subtext }]}>Powered by RescueID — For emergency use only</Text>
     </ScrollView>
+    
   );
 }
 
@@ -132,5 +175,8 @@ const styles = StyleSheet.create({
   contactRelation: { fontSize: 13, marginBottom: 8 },
   callBtn: { backgroundColor: '#e53e3e', padding: 10, borderRadius: 8, alignItems: 'center' },
   callBtnText: { color: 'white', fontWeight: '600', fontSize: 14 },
-  footer: { textAlign: 'center', fontSize: 12, margin: 16 }
+  printBtn: { marginHorizontal: 16, marginBottom: 16, backgroundColor: '#e53e3e', padding: 16, borderRadius: 12, alignItems: 'center' },
+  printBtnText: { color: 'white', fontSize: 16, fontWeight: '700' }
+  ,footer: { textAlign: 'center', fontSize: 12, margin: 16 },
+  
 });

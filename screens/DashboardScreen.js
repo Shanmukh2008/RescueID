@@ -26,8 +26,7 @@ export default function DashboardScreen({ navigation, route }) {
     emergencyContacts: [{ name: '', relationship: '', phone: '' }]
   });
 
-  const { crashDetected, countdown, cancelCrash } = useCrashDetection(form);
-
+const { crashDetected, countdown, cancelCrash, triggerCrashAlert } = useCrashDetection(form);
   useEffect(() => { fetchProfile(); }, []);
 
   const fetchProfile = async () => {
@@ -158,10 +157,12 @@ export default function DashboardScreen({ navigation, route }) {
           </TouchableOpacity>
         </View>
 
-        <TouchableOpacity style={styles.sosBtn} onPress={handleSOS}>
-          <Text style={styles.sosBtnText}>{t.dashboard.sos}</Text>
-          <Text style={styles.sosBtnSubtext}>{t.dashboard.sosSubtext}</Text>
-        </TouchableOpacity>
+       {/* TEST ONLY - Remove before publishing */}
+<TouchableOpacity 
+  style={[styles.sosBtn, { backgroundColor: '#333', marginTop: 0 }]} 
+  onPress={() => triggerCrashAlert()}>
+  <Text style={styles.sosBtnText}>Test Crash Detection</Text>
+</TouchableOpacity>
 
         <View style={[styles.section, { backgroundColor: colors.card }]}>
           <Text style={[styles.sectionTitle, { color: colors.text }]}>{t.dashboard.personalDetails}</Text>
