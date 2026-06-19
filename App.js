@@ -13,6 +13,8 @@ import RegisterScreen from './screens/RegisterScreen';
 import DashboardScreen from './screens/DashboardScreen';
 import EmergencyScreen from './screens/EmergencyScreen';
 import ScannerScreen from './screens/ScannerScreen';
+import { registerForPushNotifications } from './utils/notifications';
+import * as Notifications from 'expo-notifications';
 
 const Stack = createNativeStackNavigator();
 
@@ -23,6 +25,10 @@ export default function App() {
   useEffect(() => { checkLogin(); }, []);
 
   const checkLogin = async () => {
+    // Register for push notifications
+registerForPushNotifications().then(token => {
+  if (token) console.log('Push token:', token);
+});
     try {
       const token = await AsyncStorage.getItem('token');
       const user = await AsyncStorage.getItem('user');

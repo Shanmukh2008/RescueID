@@ -4,6 +4,7 @@ import { Alert, Vibration } from 'react-native';
 import * as Speech from 'expo-speech';
 import * as Location from 'expo-location';
 import { Linking } from 'react-native';
+import { sendLocalNotification } from '../utils/notifications';
 
 const CRASH_THRESHOLD = 4.0; // G-force threshold
 const STILLNESS_THRESHOLD = 0.3; // G-force for stillness detection
@@ -63,11 +64,17 @@ export default function useCrashDetection(profile, enabled = true) {
     setCountdown(COUNTDOWN_SECONDS);
     Vibration.vibrate([500, 500, 500, 500, 500], true);
 
+    
+
     // Start countdown
     countdownTimer.current = setInterval(() => {
       countdownRef.current -= 1;
       setCountdown(countdownRef.current);
 
+      sendLocalNotification(
+  'Crash Detected!',
+  'RescueID has detected a possible crash. SOS will activate in 10 seconds.'
+);
       if (countdownRef.current <= 0) {
         clearInterval(countdownTimer.current);
         if (!cancelled.current) {

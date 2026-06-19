@@ -9,6 +9,7 @@ import * as Location from 'expo-location';
 import * as Speech from 'expo-speech';
 import useCrashDetection from '../hooks/useCrashDetection';
 import CrashAlert from '../components/CrashAlert';
+import { sendLocalNotification } from '../utils/notifications';
 
 const API_URL = 'https://rescueid-production.up.railway.app/api';
 
@@ -137,10 +138,22 @@ export default function DashboardScreen({ navigation, route }) {
         <View style={[styles.emergencyCard, { backgroundColor: darkMode ? '#1a1a1a' : '#fff5f5', borderColor: darkMode ? '#333' : '#feb2b2' }]}>
           <Text style={styles.emergencyTitle}>{t.dashboard.emergencyLink}</Text>
           <Text style={[styles.emergencyUrl, { color: colors.subtext }]}>rescueid.tech/emergency/{user.emergencyAccessId}</Text>
-          <TouchableOpacity style={styles.emergencyBtn} onPress={() => navigation.navigate('Emergency', { id: user.emergencyAccessId })}>
-            <Text style={styles.emergencyBtnText}>{t.dashboard.preview}</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={[styles.emergencyBtn, { marginTop: 8, backgroundColor: '#333' }]} onPress={() => navigation.navigate('Scanner')}>
+          <TouchableOpacity style={styles.emergencyBtn} onPress={async () => {
+  await sendLocalNotification(
+    'Emergency Page Accessed',
+    `Someone is viewing ${form.fullName}'s emergency profile`
+  );
+  navigation.navigate('Emergency', { id: user.emergencyAccessId });
+}}>
+  <Text style={styles.emergencyBtnText}>{t.dashboard.preview}</Text>
+</TouchableOpacity>
+          <TouchableOpacity style={[styles.emergencyBtn, { marginTop: 8, backgroundColor: '#333' }]} onPress={async () => {
+  await sendLocalNotification(
+    'Scanner Accessed',
+    `Someone is using the scanner`
+  );
+  navigation.navigate('Scanner');
+}}>
             <Text style={styles.emergencyBtnText}>{t.dashboard.scan}</Text>
           </TouchableOpacity>
         </View>
