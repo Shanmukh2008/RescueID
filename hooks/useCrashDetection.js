@@ -1,31 +1,15 @@
 import { useEffect, useRef, useState } from 'react';
 import { Accelerometer } from 'expo-sensors';
-import { Vibration, Platform } from 'react-native';
+import { Vibration } from 'react-native';
 import * as Speech from 'expo-speech';
 import * as Location from 'expo-location';
 import { Linking } from 'react-native';
-import * as TaskManager from 'expo-task-manager';
-import * as BackgroundFetch from 'expo-background-fetch';
 import { sendLocalNotification } from '../utils/notifications';
 
 const CRASH_THRESHOLD = 4.0;
 const STILLNESS_THRESHOLD = 0.3;
 const STILLNESS_DURATION = 2000;
 const COUNTDOWN_SECONDS = 10;
-const BACKGROUND_TASK = 'CRASH_DETECTION_TASK';
-
-// Register background task
-TaskManager.defineTask(BACKGROUND_TASK, async () => {
-  try {
-    await sendLocalNotification(
-      'RescueID Active',
-      'Crash detection is running in the background'
-    );
-    return BackgroundFetch.BackgroundFetchResult.NewData;
-  } catch (err) {
-    return BackgroundFetch.BackgroundFetchResult.Failed;
-  }
-});
 
 export default function useCrashDetection(profile, enabled = true) {
   const [crashDetected, setCrashDetected] = useState(false);
@@ -34,26 +18,6 @@ export default function useCrashDetection(profile, enabled = true) {
   const countdownTimer = useRef(null);
   const countdownRef = useRef(COUNTDOWN_SECONDS);
   const cancelled = useRef(false);
-
-  useEffect(() => {
-    // Register background fetch
-    registerBackgroundTask();
-    return () => {
-      BackgroundFetch.unregisterTaskAsync(BACKGROUND_TASK).catch(() => {});
-    };
-  }, []);
-
-  const registerBackgroundTask = async () => {
-    try {
-      await BackgroundFetch.registerTaskAsync(BACKGROUND_TASK, {
-        minimumInterval: 60,
-        stopOnTerminate: false,
-        startOnBoot: true
-      });
-    } catch (err) {
-      console.log('Background task registration failed:', err);
-    }
-  };
 
   useEffect(() => {
     if (!enabled) return;
@@ -93,18 +57,15 @@ export default function useCrashDetection(profile, enabled = true) {
     Vibration.vibrate([500, 500, 500, 500, 500], true);
     sendLocalNotification(
       'Crash Detected!',
-      'RescueID has detected a possible crash. Open the app to cancel SOS.'
+      'RescueID detected a possible crash. Open app to cancel SOS.'
     );
 
     countdownTimer.current = setInterval(() => {
       countdownRef.current -= 1;
       setCountdown(countdownRef.current);
-
       if (countdownRef.current <= 0) {
         clearInterval(countdownTimer.current);
-        if (!cancelled.current) {
-          activateSOS();
-        }
+        if (!cancelled.current) activateSOS();
       }
     }, 1000);
   };
@@ -121,7 +82,6 @@ export default function useCrashDetection(profile, enabled = true) {
   const activateSOS = async () => {
     Vibration.cancel();
     setCrashDetected(false);
-
     try {
       const { status } = await Location.requestForegroundPermissionsAsync();
       let locationText = 'unknown location';
@@ -129,15 +89,8 @@ export default function useCrashDetection(profile, enabled = true) {
         const location = await Location.getCurrentPositionAsync({});
         locationText = `latitude ${location.coords.latitude.toFixed(4)}, longitude ${location.coords.longitude.toFixed(4)}`;
       }
-
       const contact = profile?.emergencyContacts?.[0];
-      const message = `Emergency crash detected. Patient name: ${profile?.fullName || 'unknown'}. 
-        Blood group ${profile?.bloodGroup || 'unknown'}. 
-        Location: ${locationText}. 
-        Allergies: ${profile?.allergies || 'none'}. 
-        Medical conditions: ${profile?.medicalConditions || 'none'}. 
-        Emergency contact: ${contact?.name || 'none'}, ${contact?.phone || 'none'}.`;
-
+      const message = `Emergency crash detected. Patient name: ${profile?.fullName || 'unknown'}. Blood group ${profile?.bloodGroup || 'unknown'}. Location: ${locationText}. Allergies: ${profile?.allergies || 'none'}. Medical conditions: ${profile?.medicalConditions || 'none'}. Emergency contact: ${contact?.name || 'none'}, ${contact?.phone || 'none'}.`;
       Speech.speak(message, { language: 'en-IN', pitch: 1.0, rate: 0.85 });
       Linking.openURL('tel:112');
     } catch (err) {
